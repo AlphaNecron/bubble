@@ -1,4 +1,4 @@
-package gen
+package bubble
 
 import (
 	"cmp"
