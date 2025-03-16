@@ -1,0 +1,52 @@
+{{- /*gotype: necron.dev/pkg/bubble/gen.tmplData*/ -}}
+package {{ .PkgName }}
+
+import (
+    {{- range $path, $alias := .Imports }}
+    {{ $alias }} "{{ $path }}"
+    {{- end }}
+)
+
+type (
+    ContainerKey string
+
+    Container struct {
+        {{- range .Services }}
+        _{{ .Name }} {{ .Type.String }}
+        {{- end }}
+    }
+)
+
+func NewContainer(
+    {{- range .Services }}
+    provide{{ .Name }} func({{ join .ProvFn.Params ", " }}) ({{ join .ProvFn.Returns ", " }}), {{- end }}
+) (*Container, error) {
+    var e error
+    ctn := new(Container)
+    {{ range .Services }}
+    ctn._{{ .Name }} {{- if .ProvFn.ShouldReturnError -}}, e {{- end }} = provide{{ .Name }}({{ join (prefix "ctn._" .ProvFn.Args) ", " }})
+            {{- if .ProvFn.ShouldReturnError }}
+    if e != nil {
+        return nil, fmt.Errorf("failed to provide '{{ .Name }}': %w", e)
+    }
+    {{ end }}
+    {{ end }}
+
+    return ctn, nil
+}
+{{ range .Services }}
+func (c *Container) {{ .Name }}() {{ .Type.String }} {
+    return c._{{ .Name }}
+}
+{{ end }}
+
+var C = func(i any) *Container {
+    switch v := i.(type) {
+    case *Container:
+        return v
+    case context.Context:
+        return v.Value(ContainerKey("container")).(*Container)
+    default:
+        return nil
+    }
+}
