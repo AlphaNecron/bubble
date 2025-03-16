@@ -36,6 +36,9 @@ func (g *graph[T]) traverse(u T) {
 
 func (g *graph[T]) sort(cmp func(T, T) int) []T {
 	slices.SortStableFunc(g.vertices, cmp)
+	for k := range g.edges {
+		g.edges[k] = slices.SortedStableFunc(slices.Values(g.edges[k]), cmp)
+	}
 	for _, v := range g.vertices {
 		if _, ok := g.vis[v]; !ok {
 			g.traverse(v)
