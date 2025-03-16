@@ -1,2 +1,2 @@
 # bubble
-Decoupled idiotic dependency injection container for Go.
+Idiotic decoupled dependency injection container for Go.

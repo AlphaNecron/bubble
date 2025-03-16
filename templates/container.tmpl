@@ -25,11 +25,11 @@ func NewContainer(
     ctn := new(Container)
     {{ range .Services }}
     ctn._{{ .Name }} {{- if .ProvFn.ShouldReturnError -}}, e {{- end }} = provide{{ .Name }}({{ join (prefix "ctn._" .ProvFn.Args) ", " }})
-            {{- if .ProvFn.ShouldReturnError }}
+        {{- if .ProvFn.ShouldReturnError }}
     if e != nil {
         return nil, fmt.Errorf("failed to provide '{{ .Name }}': %w", e)
     }
-    {{ end }}
+        {{ end }}
     {{ end }}
 
     return ctn, nil
