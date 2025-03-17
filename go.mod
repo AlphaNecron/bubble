@@ -1,3 +1,3 @@
 module necron.dev/pkg/bubble
 
-go 1.18
+go 1.24

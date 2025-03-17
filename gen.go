@@ -72,7 +72,6 @@ func genData(pkgName string, provFns map[string]any) (dat tmplData) {
 		if t.Kind() != reflect.Func {
 			panic(fmt.Errorf("expected provider '%s' to be a func but got %s", name, t.Kind()))
 		}
-		svc.Name = strings.TrimPrefix(svc.Name, "Provide")
 		switch t.NumOut() {
 		case 0:
 			panic(fmt.Errorf("expected provider '%s' to return at least one value", name))
