@@ -23,6 +23,8 @@ type (
     }
 )
 
+var DefaultContainerKey = ContainerKey("bubble")
+
 func NewContainer(c ContainerConstructor) (*Container, error) {
     var e error
     ctn := new(Container)
@@ -48,7 +50,7 @@ var C = func(i any) *Container {
     case *Container:
         return v
     case context.Context:
-        return v.Value(ContainerKey("bubble")).(*Container)
+        return v.Value(DefaultContainerKey).(*Container)
     default:
         return nil
     }
