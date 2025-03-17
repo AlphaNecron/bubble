@@ -15,16 +15,19 @@ type (
         _{{ .Name }} {{ .Type.String }}
         {{- end }}
     }
+
+    ContainerConstructor struct {
+{{- range .Services }}
+        Provide{{ .Name }} func({{ join .ProvFn.Params ", " }}) ({{ join .ProvFn.Returns ", " }})
+{{- end }}
+    }
 )
 
-func NewContainer(
-    {{- range .Services }}
-    provide{{ .Name }} func({{ join .ProvFn.Params ", " }}) ({{ join .ProvFn.Returns ", " }}), {{- end }}
-) (*Container, error) {
+func NewContainer(c ContainerConstructor) (*Container, error) {
     var e error
     ctn := new(Container)
     {{ range .Services }}
-    ctn._{{ .Name }} {{- if .ProvFn.ShouldReturnError -}}, e {{- end }} = provide{{ .Name }}({{ join (prefix "ctn._" .ProvFn.Args) ", " }})
+    ctn._{{ .Name }} {{- if .ProvFn.ShouldReturnError -}}, e {{- end }} = c.Provide{{ .Name }}({{ join (prefix "ctn._" .ProvFn.Args) ", " }})
         {{- if .ProvFn.ShouldReturnError }}
     if e != nil {
         return nil, fmt.Errorf("failed to provide '{{ .Name }}': %w", e)
@@ -45,7 +48,7 @@ var C = func(i any) *Container {
     case *Container:
         return v
     case context.Context:
-        return v.Value(ContainerKey("container")).(*Container)
+        return v.Value(ContainerKey("bubble")).(*Container)
     default:
         return nil
     }
